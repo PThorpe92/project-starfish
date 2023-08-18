@@ -14,40 +14,39 @@ class LtiController extends Controller
         $tool = LtiTool::getLtiTool();
         return $tool->getJWKS();
     }
-
-    // return the Canvas LTI account associated with the context
-    public function getCanvasLtiAccount()
-    {
-        $tool = LtiTool::getLtiTool();
-        $platform = $tool->getPlatformById(session('platform_id'));
-        $client = new Client(['base_uri' => $platform->getIssuer()]);
-        $response = $client->get('/api/v1/accounts/' . $platform->getIssuer());
-        if ($response->getStatusCode() == 200) {
-            $account = json_decode($response->getBody());
-        }
-        return $account;
-    }
-
     public function ltiMessage(Request $request)
     {
         $tool = LtiTool::getLtiTool();
 
         $tool->handleRequest();
 
-        $request->session()->put('context_id', $tool->context?->getRecordId());
-        $request->session()->put('platform_id', $tool->platform?->getRecordId());
-        $request->session()->put('user_result_id', $tool->userResult?->getRecordId());
+        if ($tool->getLaunchType() === $tool::LAUNCH_TYPE_LAUNCH) {
+            // See https://github.com/celtic-project/LTI-PHP/wiki/Services for how to call LTI services such as the Names and Roles Provisioning Service.
+        }
 
-        //        dd("Successful launch!", $tool);
-        return "<a href='/testRoster'>Test Roster</a><br>
-        <a href='/testLineItem'>Test Viewing Line Items</a><br>
-        <a href='/testLineItemSet'>Test Setting Line Items</a><br>
-        <a href='/testLineItemUpdateScore'>Test Updating Scores on Line Items</a><br>
-        <a href='/test1'>Test 1</a><br>
-        <a href='/test2'>Test 2</a><br>
-        <a href='/test3'>Test 3</a><br>
-        <a href='/test4'>Test 4</a>";
+        die("Unknown message type");
     }
+
+    // public function ltiMessage(Request $request)
+    // {
+    //     $tool = LtiTool::getLtiTool();
+    //
+    //     $tool->handleRequest();
+    //
+    //     $request->session()->put('context_id', $tool->context?->getRecordId());
+    //     $request->session()->put('platform_id', $tool->platform?->getRecordId());
+    //     $request->session()->put('user_result_id', $tool->userResult?->getRecordId());
+    //
+    //    // dd("Successful launch!", $tool);
+    //     return "<a href='/testRoster'>Test Roster</a><br>
+    //     <a href='/testLineItem'>Test Viewing Line Items</a><br>
+    //     <a href='/testLineItemSet'>Test Setting Line Items</a><br>
+    //     <a href='/testLineItemUpdateScore'>Test Updating Scores on Line Items</a><br>
+    //     <a href='/test1'>Test 1</a><br>
+    //     <a href='/test2'>Test 2</a><br>
+    //     <a href='/test3'>Test 3</a><br>
+    //     <a href='/test4'>Test 4</a>";
+    // }
 
     // Dump the course's roster to the screen
     public function testRoster(Request $request)
